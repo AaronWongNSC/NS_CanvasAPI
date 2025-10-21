@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "NS_CanvasAPI_GUI"
+version = "0.0.1"
+description = "A GUI interface for doing things on Canvas through the API."
+authors = [
+  {name = "Aaron Wong", email = "aaron.wong@nevadastate.edu"}
+]
+dependencies = [
+  "canvasapi"
+]
