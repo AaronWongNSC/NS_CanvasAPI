@@ -10,5 +10,6 @@ authors = [
   {name = "Aaron Wong", email = "aaron.wong@nevadastate.edu"}
 ]
 dependencies = [
-  "canvasapi"
+  "canvasapi",
+  "customtkinter"
 ]
