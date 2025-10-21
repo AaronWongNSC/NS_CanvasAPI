@@ -13,3 +13,6 @@ dependencies = [
   "canvasapi",
   "customtkinter"
 ]
+
+[project.scripts]
+my-cli-command = "connect_to_canvas"
