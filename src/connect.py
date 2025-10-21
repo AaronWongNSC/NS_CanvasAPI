@@ -128,9 +128,10 @@ class CanvasConnection(NewRoot):
             if key is not None and key.strip() != '':
                 with open('key.txt', 'w') as file:
                     file.write(key)
-                    new_master.widgets['api_key']['contents'].configure(text='API key found')
+                    new_master.widgets['api_key']['content'].configure(text='API key found')
         except:
-            new_master.widgets['api_key']['contents'].configure(text='No API key found')
+            new_master.widgets['api_key']['content'].configure(text='No API key found')
 
 app = CanvasConnection('canvas')
+
 app.mainloop()
