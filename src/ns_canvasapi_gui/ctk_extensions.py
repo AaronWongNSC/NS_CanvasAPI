@@ -104,6 +104,43 @@ class NewButton(customtkinter.CTkButton, NewObject):
         self.configure(text='Clicked!', state='disabled')
         self.after(3000, lambda: self.configure(text=button_text, state='normal'))
 
+class NewCheckBox(customtkinter.CTkCheckBox, NewObject):
+    """
+    CheckBox object with tracking information
+    """
+    def __init__(self, name: str, master: object, onvalue: int|str = 'on', offvalue: int|str = 'off', variable=object):
+        # General setup
+        super().__init__(master=master, text=name, onvalue=onvalue, offvalue=offvalue, variable=variable)
+
+        # Set tracking parameters
+        self.name = name
+        self.root = master.root
+        self.self_window = self.get_self_window()
+        self.type = 'NewCheckBox'
+
+        # Set general parameters
+        self.offvalue = offvalue
+        self.onvalue = onvalue
+        self.variable = variable
+
+        # Establish connection to master
+        master.widgets[name] = self
+
+        # Set up feedback
+        self.configure(command=self.checkbox_event)
+
+        # Command Window Feedback
+        self.short_display()
+    
+    def checkbox_event(self):
+        """
+        Generic checkbox click feedback
+        """
+        if 'name' in self.master.__dict__.keys():
+            print(f'Checkbox Toggle: {self.name} in {self.master.name} in {self.self_window} set to {self.variable.get()}')
+        else:
+            print(f'Checkbox Toggle: {self.name} in ??? in {self.self_window} set to {self.variable.get()}')
+
 class NewFrame(customtkinter.CTkFrame, NewObject):
     """
     Frame object with tracking information
@@ -154,6 +191,10 @@ class NewRadio(customtkinter.CTkRadioButton, NewObject):
         self.root = master.root
         self.self_window = self.get_self_window()
         self.type = 'NewRadio'
+
+        # Set general parameters
+        self.value = value
+        self.variable = variable
 
         # Establish connection to master
         master.widgets[name] = self
@@ -258,7 +299,7 @@ class NewTabView(customtkinter.CTkTabview, NewObject):
 
 class NewTextbox(customtkinter.CTkTextbox, NewObject):
     """
-    Button object with tracking information
+    Textbox object with tracking information
     """
     def __init__(self, name: str, master: object):
         # General setup

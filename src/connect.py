@@ -133,5 +133,4 @@ class CanvasConnection(NewRoot):
             new_master.widgets['api_key']['content'].configure(text='No API key found')
 
 app = CanvasConnection('canvas')
-
 app.mainloop()

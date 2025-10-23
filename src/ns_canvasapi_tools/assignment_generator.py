@@ -1,9 +1,10 @@
+from bs4 import BeautifulSoup
 import customtkinter
 
 from ns_canvasapi_gui.ctk_extensions import NewButton, NewFrame, NewLabel, NewRadio, NewScrollFrame, NewTextbox
 from ns_canvasapi_gui.frames import DateTimeFrame
-from ns_canvasapi_gui.general_style import DEFAULT_GRID_OPTIONS, LARGEFONT, PADS, TOP_ALIGN
-from ns_canvasapi_gui.util import new_window, select_pkl
+from ns_canvasapi_gui.general_style import DEFAULT_GRID_OPTIONS, LARGEFONT, TOP_ALIGN
+from ns_canvasapi_gui.util import new_window
 
 class AssignmentGenerator(NewFrame):
     def __init__(self, name: str, master: object, *args, **kwargs):
@@ -284,13 +285,45 @@ class AssignmentGenerator(NewFrame):
             button.grid(row=last_row, column=0, **DEFAULT_GRID_OPTIONS)
             
     def get_template(self):
-        from bs4 import BeautifulSoup
 
+        """
+        Retrieve the template assignment
+        """
+        # Get the location of the template
+        dialog = customtkinter.CTkInputDialog(text="Enter the course ID for the course that contains the template", title="Set Course")
+        course_id = dialog.get_input()
+        if not course_id.isdigit():
+            return None
+
+        dialog = customtkinter.CTkInputDialog(text="Enter the assignment ID of the template", title="Set Assignment")
+        assignment_id = dialog.get_input()
+        if not assignment_id.isdigit():
+            return None
+        
+        # Obtain the template
+        try:
+            course_id = int(course_id)
+            assignment_id = int(assignment_id)
+            course = self.root.connection.get_course(course_id)
+            assignment = course.get_assignment(assignment_id)
+            contents = {key: content for key, content in assignment.__dict__.items()}
+        except:
+            print('Assignment not found -- Check the course id and the assignment id')
+            self.widgets['contents'].widgets['template_button_frame'].widgets['template_status'].configure(text='Template not found')
+            return None
+
+        """
         contents = select_pkl(master=self)
         if contents is None:
             return
+        """
+
         contents = {key: content for key, content in contents.items()
                     if key in self.relevant_template_attributes}
+
+        soup = BeautifulSoup(contents['description'], "html.parser")
+        contents['_readable_description'] = soup.get_text()
+
         self.template = contents
 
         new_master = self.widgets['contents'].widgets['template_button_frame']
@@ -305,7 +338,7 @@ class AssignmentGenerator(NewFrame):
         new_master.grid_columnconfigure(0, weight=1)
 
         subframe.grid_columnconfigure(1, weight=1)
-        row_names = self.template.keys()
+        row_names = sorted(self.template.keys())
         col_names = ['key', 'value']
 
         for row_count, row_name in enumerate(row_names):
@@ -323,9 +356,6 @@ class AssignmentGenerator(NewFrame):
             new_master.widgets[row_name]['key'].insert('0.0', row_name)
             new_master.widgets[row_name]['key'].configure(state='disabled')
             new_master.widgets[row_name]['value'].insert('0.0', f'{contents[row_name]}')
-
-        #soup = BeautifulSoup(contents['description'], "html.parser")
-        #new_master.widgets['Description']['value'].insert('0.0', soup.get_text())
 
         for row_name in row_names:
             new_master.widgets[row_name]['value'].configure(state='disabled')

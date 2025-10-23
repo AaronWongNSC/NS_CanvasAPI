@@ -12,8 +12,7 @@ def z_time_str_to_dt(z_time_str: str) -> datetime:
     Convert a Z-time string to a datetime object.
     
     Args:
-        z_time_str: A Z-time string. Note that this does not error-check, so 
-        z_time_str_test() should be run on the string before this happens.
+        z_time_str: A Z-time string.
     
     Returns:
         datetime: A datetime object matching the Z-time.

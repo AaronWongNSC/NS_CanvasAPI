@@ -8,7 +8,7 @@ import customtkinter
 
 from ns_canvasapi_gui.ctk_extensions import NewButton, NewFrame, NewLabel, NewScrollFrame, NewTextbox
 from ns_canvasapi_gui.general_style import REGULARFONT, DEFAULT_GRID_OPTIONS
-from ns_canvasapi_gui.util import standardize_date, standardize_time
+from ns_canvasapi_gui.util import get_date_pattern, get_date, get_time
 
 import datetime as dt
 
@@ -50,8 +50,8 @@ class DateTimeFrame(NewFrame):
         Adds a single datetime object to the list
         """
         # Get date and time
-        date = self.get_date()
-        time = self.get_time()
+        date = get_date()
+        time = get_time()
         if date is None or time is None:
             return
 
@@ -61,58 +61,9 @@ class DateTimeFrame(NewFrame):
         self.fill_dates()
 
     def add_pattern(self):
-        # Get start date
-        start_date = self.get_date(prompt='Start Date (Month/Day/Year)')
-        if start_date is None:
-            return None
-        start_dt = self.convert_datetime(start_date, '0:00')
-        
-        # Get stop date
-        stop_date = self.get_date(prompt='Stop Date (Month/Day/Year)')
-        if stop_date is None:
-            return None
-        stop_dt = self.convert_datetime(stop_date, '0:00')
-
-        # Get meeting pattern
-        dialog = customtkinter.CTkInputDialog(text="Define meeting pattern (MTWRF, so MW = Monday/Wednesday):", title="Meeting Pattern")
-        dow = dialog.get_input().upper()
-        if dow is None or dow.strip == '':
-            return None
-
-        pattern = []
-        if 'M' in dow:
-            pattern.append('Mon')
-        if 'T' in dow:
-            pattern.append('Tue')
-        if 'W' in dow:
-            pattern.append('Wed')
-        if 'R' in dow:
-            pattern.append('Thu')
-        if 'F' in dow:
-            pattern.append('Fri')
-
-        # Get time
-        time = self.get_time()
-        if time is None:
-            return
-    
-        current_dt = start_dt
-        delta_day = dt.timedelta(days=1)
-
-        while current_dt <= stop_dt:
-            if current_dt.strftime('%a') in pattern:
-                self.datetimes.append(self.convert_datetime(current_dt.strftime('%m/%d/%Y'), time))
-            current_dt += delta_day
-        
+        # Get pattern and fill
+        self.datetimes = get_date_pattern(tz=self.root.tz)
         self.fill_dates()
-
-    def convert_datetime(self, date: str, time: str):
-        """
-        Converts a standardized date string and time string into a datetime object
-        """
-        month, day, year = [int(number) for number in date.split('/')]
-        hour, minute = [int(number) for number in time.split(':')]
-        return dt.datetime(month=month, day=day, year=year, hour=hour, minute=minute)
 
     def fill_dates(self):
         # Clear old data
@@ -130,46 +81,16 @@ class DateTimeFrame(NewFrame):
             name_label.configure(text=date.strftime('%a, %m/%d/%Y at %H:%M'))
             name_label.grid(row=count, column=1, **DEFAULT_GRID_OPTIONS)
 
-    def get_date(self, prompt: str=None):
-        """
-        Provides a prompt for a single date
-        """
-        # Set up prompt
-        if prompt is None:
-            prompt = 'Date (Month/Day/Year)'
-
-        # Get date
-        dialog = customtkinter.CTkInputDialog(text=prompt, title="Date")
-        date = standardize_date(dialog.get_input())
-        if date is None or date.strip == '':
-            return None
-        return date
-
-    def get_time(self, prompt: str=None):
-        """
-        Provides a prompt for a time
-        """
-        # Set up prompt
-        if prompt is None:
-            prompt = 'Set the time (use 24-hour time)'
-
-        # Get time
-        dialog = customtkinter.CTkInputDialog(text=prompt, title='Time')
-        time = standardize_time(dialog.get_input())
-        if time is None or time.strip == '':
-            return None
-        return time
-
     def remove_datetime(self):
         # Get date and time
-        date = self.get_date()
-        time = self.get_time()
+        date = get_date()
+        time = get_time()
         if date is None or time is None:
             return
 
         # Remove the datetime object from the list
         eliminate = self.convert_datetime(date, time)
-        self.datetimes = [datetime for datetime in self.datetimes if datetime != eliminate]
+        self.datetimes = [datetime for datetime in self.datetimes if datetime.strftime('%M/%D/%Y %H:%M') != eliminate.strftime('%M/%D/%Y %H:%M')]
         self.fill_dates()
 
 

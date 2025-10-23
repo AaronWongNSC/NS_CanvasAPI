@@ -2,6 +2,7 @@
 Useful code when working with ns_canvasapi_gui
 """
 import customtkinter
+import datetime as dt
 
 def change_value(button, target):
     """
@@ -27,6 +28,106 @@ def change_value(button, target):
     if value is not None and value.strip() != '':
         target.configure(text=value)
 
+def convert_datetime(date: str, time: str):
+    """
+    Converts a standardized date string and time string into a datetime object
+    """
+    month, day, year = [int(number) for number in date.split('/')]
+    hour, minute = [int(number) for number in time.split(':')]
+    return dt.datetime(month=month, day=day, year=year, hour=hour, minute=minute)
+
+def get_date(prompt: str=None):
+    """
+    Provides a prompt for a single date
+    """
+    # Set up prompt
+    if prompt is None:
+        prompt = 'Date (Month/Day/Year)'
+
+    # Get date
+    dialog = customtkinter.CTkInputDialog(text=prompt, title="Date")
+    date = standardize_date(dialog.get_input())
+    if date is None or date.strip == '':
+        return None
+    return date
+
+def get_datetime():
+    """
+    Provides prompts to get a single datetime object
+    """
+    # Get date and time
+    date = get_date()
+    time = get_time()
+    if date is None or time is None:
+        return
+
+    return convert_datetime(date, time)
+
+def get_date_pattern():
+    """
+    Provides a prompt to create a list of datetime objects in a meeting pattern
+    """
+    # Get start date
+    start_date = get_date(prompt='Start Date (Month/Day/Year)')
+    if start_date is None:
+        return None
+    start_dt = convert_datetime(start_date, '0:00')
+    
+    # Get stop date
+    stop_date = get_date(prompt='Stop Date (Month/Day/Year)')
+    if stop_date is None:
+        return None
+    stop_dt = convert_datetime(stop_date, '0:00')
+
+    # Get meeting pattern
+    dialog = customtkinter.CTkInputDialog(text="Define meeting pattern (MTWRF, so MW = Monday/Wednesday):", title="Meeting Pattern")
+    dow = dialog.get_input().upper()
+    if dow is None or dow.strip == '':
+        return None
+
+    pattern = []
+    if 'M' in dow:
+        pattern.append('Mon')
+    if 'T' in dow:
+        pattern.append('Tue')
+    if 'W' in dow:
+        pattern.append('Wed')
+    if 'R' in dow:
+        pattern.append('Thu')
+    if 'F' in dow:
+        pattern.append('Fri')
+
+    # Get time
+    time = get_time()
+    if time is None:
+        return
+
+    current_dt = start_dt
+    delta_day = dt.timedelta(days=1)
+
+    datetimes = []
+
+    while current_dt <= stop_dt:
+        if current_dt.strftime('%a') in pattern:
+            datetimes.append(convert_datetime(current_dt.strftime('%m/%d/%Y'), time))
+        current_dt += delta_day
+
+    return datetimes
+
+def get_time(prompt: str=None):
+    """
+    Provides a prompt for a time
+    """
+    # Set up prompt
+    if prompt is None:
+        prompt = 'Set the time (use 24-hour time)'
+
+    # Get time
+    dialog = customtkinter.CTkInputDialog(text=prompt, title='Time')
+    time = standardize_time(dialog.get_input())
+    if time is None or time.strip == '':
+        return None
+    return time
 
 def new_window(parent_window: object, window_name: str):
     """
