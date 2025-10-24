@@ -8,7 +8,7 @@ import customtkinter
 
 from ns_canvasapi_gui.ctk_extensions import NewButton, NewFrame, NewLabel, NewScrollFrame, NewTextbox
 from ns_canvasapi_gui.general_style import REGULARFONT, DEFAULT_GRID_OPTIONS
-from ns_canvasapi_gui.util import get_date_pattern, get_date, get_time
+from ns_canvasapi_gui.util import convert_datetime, get_date_pattern, get_date, get_time
 
 import datetime as dt
 
@@ -56,13 +56,16 @@ class DateTimeFrame(NewFrame):
             return
 
         # Add the datetime object to the list
-        add = self.convert_datetime(date, time)
+        add = convert_datetime(date, time)
         self.datetimes.append(add)
         self.fill_dates()
 
     def add_pattern(self):
         # Get pattern and fill
-        self.datetimes = get_date_pattern(tz=self.root.tz)
+        dates = get_date_pattern()
+        if dates is None:
+            return
+        self.datetimes = dates
         self.fill_dates()
 
     def fill_dates(self):
@@ -89,7 +92,7 @@ class DateTimeFrame(NewFrame):
             return
 
         # Remove the datetime object from the list
-        eliminate = self.convert_datetime(date, time)
+        eliminate = convert_datetime(date, time)
         self.datetimes = [datetime for datetime in self.datetimes if datetime.strftime('%M/%D/%Y %H:%M') != eliminate.strftime('%M/%D/%Y %H:%M')]
         self.fill_dates()
 

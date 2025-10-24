@@ -204,6 +204,7 @@ class AssignmentGenerator(NewFrame):
     def generate_assignments(self):
         button = self.self_window.windows['check_assignments'].widgets['go']
         button.configure(text='--- Working ---', state='disabled')
+        self.update()
         final_template = {
             key: value for key, value in self.template.items()
             if key not in ['name', 'id']

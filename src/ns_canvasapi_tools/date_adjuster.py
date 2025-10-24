@@ -3,7 +3,6 @@ import customtkinter
 from ns_canvasapi_tools.util import z_time_str_to_dt
 
 from ns_canvasapi_gui.ctk_extensions import NewButton, NewCheckBox, NewFrame, NewLabel, NewScrollFrame
-from ns_canvasapi_gui.frames import DateTimeFrame
 from ns_canvasapi_gui.general_style import DEFAULT_GRID_OPTIONS, LARGEFONT
 from ns_canvasapi_gui.util import get_datetime, get_date_pattern, new_window
 
